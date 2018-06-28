@@ -18,34 +18,47 @@ from shutil import copyfile
 def find(labels, csv_dataset, raw_audio_dir, destination_dir):
     print("Finding examples for classes " + str(labels) + " in: " + raw_audio_dir)
 
-    class_ids, classes = get_label_ids(labels)
+    for label in labels:
+        class_id = get_label_id(label)
+        youtube_id = get_yt_ids(class_id, csv_dataset)
+        sort_files(youtube_id, raw_audio_dir, destination_dir)
 
-    youtube_ids = get_yt_ids(class_ids, csv_dataset)
 
-    sort_files(youtube_ids, raw_audio_dir, destination_dir)
+def download(label, csv_dataset, dst_dir, strict):
+    new_csv = create_csv(label, csv_dataset, strict)
+    dst_dir = os.path.join(dst_dir, label)
 
+    if not os.path.isdir(dst_dir):
+        os.makedirs(dst_dir)
+
+    with open(new_csv) as dataset:
+        reader = csv.reader(dataset)
+
+        for row in reader:
+            os.system(("ffmpeg -ss " + row[1] + " -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
+                       row[0] + ") -t 10 --  \"" + dst_dir + "/" + row[0] + "_" + row[1] + ".wav\""))
 
 """
     Function for creating csv file containing info for given class
 """
 
 
-def create_csv(class_name, csv_dataset, dst_dir='./data/', data=None):
+def create_csv(class_name, csv_dataset, strict, dst_dir='./data/'):
     new_csv_path = os.path.join(dst_dir + class_name + '.csv')
     print(new_csv_path)
 
-    if os.path.isfile(
-            new_csv_path):  # Should check if CSV already exists and possibly return if so? Overwriting for now
+    # Should check if CSV already exists and possibly return if so? Overwriting for now
+    if os.path.isfile(new_csv_path):
         print("A CSV file for class " + class_name + ' already exists.')
         print("*** Overwriting " + dst_dir + class_name + '.csv ***')
 
-    label_id = get_label_ids([class_name])  # Put in square brackets because get_label_ids needs list as input!
+    label_id = get_label_id(class_name,strict)
 
     with open(csv_dataset) as dataset, open(new_csv_path, 'w', newline='') as new_csv:
         reader = csv.reader(dataset, skipinitialspace=True)
         writer = csv.writer(new_csv)
 
-        to_write = [row for row in reader if label_id[class_name] in row[3]]
+        to_write = [row for row in reader for label in label_id if label in row[3]]
         writer.writerows(to_write)
 
     print("Finished writing CSV file for " + class_name)
@@ -54,39 +67,50 @@ def create_csv(class_name, csv_dataset, dst_dir='./data/', data=None):
 
 
 """
-    Function for getting corresponding label for each class
+    Function for getting corresponding label for a class
     Input:
-        labels - dictionary of label values to search for
+        labels - label value to search for
+
+    Returns:
+        label_id - ID for given label. Given as a list as there can be multiple matching IDs found (e.g. "dog")
+
+    The function looks for class name in the CSV file of label indices. It performs sub-string searching rather than
+    matching so that class labels are more reliably found. Problematic naming convention of classes in AudioSet
+    forces this to be the case. For example, inputting "female speech" as 'label' will not find class
+    "Female speech, woman speaking" if exact string matching is performed. Also problems with exact string matching if
+    there are spaces in class names.
+    Sub-string matching will result in multiple class labels being found for certain input stings. e.g. "dog"
+
+    28/06/18: implemented 'strict' option
 """
 
 
-def get_label_ids(labels):
-    # populate the label id dictionary with None placeholders
-    # so that error checking can be performed later
-    label_ids = dict.fromkeys(labels)
+def get_label_id(label, strict):
 
     with open('class_labels_indices.csv') as label_file:
         reader = csv.DictReader(label_file)
-        index, id, class_name, *_ = reader.fieldnames
+        index, id, class_name, = reader.fieldnames
 
-        for row in reader:
-            for label in labels:
-                if label.lower() == row[class_name].lower():  # check if any label has been found
-                    label_ids[label] = row[id]  # add label ID to dictionary entry for respective label/class
+        if strict:
+            label_id = [row[id] for row in reader if (label.lower() == row[class_name].lower())]
 
-    for label in labels:
-        if label_ids[label] is None:
-            print("No id for class " + label + " found. Omitting from search")
-            label_ids.pop(label)  # remove class label which doesn't exist
-            labels.remove(label)  # remove class label from list of labels we are searching for
+        else:
+            label_id = [row[id] for row in reader if (label.lower() in row[class_name].lower())]
 
-    return label_ids
+        if label_id is None:
+            print("No id for class " + label)
+
+        if len(label_id) > 1: # If there is more than one class containing the specified string
+            print("Multiple labels found for " + label)
+            print(label_id)
+
+    return label_id
 
 
 """
     Function for getting the youtube IDs for all clips where the specified classes are present
     Input:
-        - label_ids: dict containing label and label-id pairs
+        - label_ids: list of label IDs (will most often only contain 1 label)
         - csv_dataset: path to csv file containing dataset info (i.e. youtube ids and labels)
 """
 
@@ -97,10 +121,8 @@ def get_yt_ids(label_ids, csv_dataset):
     with open(csv_dataset) as dataset:
         reader = csv.reader(dataset, skipinitialspace=True)
 
-        for row in reader:
-            for label, label_id in label_ids.items():  # search for label id in row
-                if label_id in row[3]:  # if label is in this clip, add to list of label-yt_id pairs
-                    yt_ids[label].append(row[0])
+        # Add youtube id to list for label if corresponding audio contains that label/class
+        [(yt_ids[label].append(row[0])) for row in reader for label in label_ids if label in row[3]]
 
     for label in yt_ids:
         if not yt_ids[label]:
@@ -126,8 +148,7 @@ def get_yt_ids(label_ids, csv_dataset):
 
 
 def sort_files(yt_ids, file_dir, dst_dir=None):
-    if dst_dir is None:
-        dst_dir = file_dir
+    dst_dir = file_dir if dst_dir is None else dst_dir
 
     for label in yt_ids:  # keys in yt_ids are class names
         if not os.path.exists(dst_dir + "/" + label):
@@ -159,9 +180,15 @@ if __name__ == '__main__':
 
     print(args.labels)
 
-    class_ids = get_label_ids(args.labels)
+    class_ids = [get_label_id(label) for label in args.labels]
+
+    #class_ids = get_label_ids(args.labels)
+
+    class_ids = dict(zip(args.labels, class_ids))
 
     print(class_ids)
+
+    # yt_ids = [get_yt_ids(label_id, args.csv_dataset) for label_id in class_ids]
 
     youtube_ids = get_yt_ids(class_ids, args.csv_dataset)
 

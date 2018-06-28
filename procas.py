@@ -25,33 +25,23 @@ def find(args):
 
 
 def download(args):
-    print("Downloading classes: " + args.classes + " from AudioSet.")
+    print("Downloading classes from AudioSet.")
 
     for class_name in args.classes:
-        new_csv = utils.create_csv(class_name, args.csv_dataset)
-
-        # Now download files from new_csv
-
-
-
-
+        utils.download(class_name, args.csv_dataset, args.destination_dir, args.strict)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('mode', type=str, choices=['find', 'download'])
+    parser.add_argument('-s', '--strict', help='If used, only match exact string argument passed')
 
-    data_args = parser.add_argument_group('Data')
-    data_args.add_argument('--label_file', type=str, help='Path to CSV file containing AudioSet labels for each class')
-    data_args.add_argument('--csv_dataset', type=str, help='Path to CSV file containing AudioSet in YouTube-id/timestamp form')
+    parser.add_argument('--label_file', type=str, help='Path to CSV file containing AudioSet labels for each class')
+    parser.add_argument('--csv_dataset', type=str, help='Path to CSV file containing AudioSet in YouTube-id/timestamp form')
 
-    find_args = parser.add_argument_group('Find')
-    find_args.add_argument('-c', '--classes', nargs='+', type=str, help='list of classes to find in a given directory of audioset files')
-    find_args.add_argument('-d', '--audio_data_dir', type=str, help='directory path containing files from AudioSet')
-    find_args.add_argument('--destination_dir', type=str, help='directory path to put found files into')
-
-    download_args = parser.add_argument_group('Download')
-    download_args.add_argument('-c', '--classes', nargs='+', type=str, help='list of classes to download from AudioSet')
+    parser.add_argument('-c', '--classes', nargs='+', type=str, help='list of classes to find in a given directory of audioset files')
+    parser.add_argument('-d', '--audio_data_dir', type=str, help='directory path containing files from AudioSet')
+    parser.add_argument('--destination_dir', type=str, help='directory path to put found files into')
 
     parser.set_defaults(
         label_file='./data/class_labels_indices.csv',

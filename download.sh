@@ -1,3 +1,5 @@
+# NOT USED
+
 #!/bin/bash
 
 # Script for downloading audio clips (10s) from Youtube using AudioSet CSV datasets
