@@ -24,7 +24,7 @@ def find(labels, csv_dataset, raw_audio_dir, destination_dir):
         sort_files(youtube_id, raw_audio_dir, destination_dir)
 
 
-def download(label, csv_dataset, dst_dir, strict):
+def download(label, csv_dataset, dst_dir, strict, sample_rate):
     new_csv = create_csv(label, csv_dataset, strict)
     dst_dir = os.path.join(dst_dir, label)
 
@@ -36,7 +36,7 @@ def download(label, csv_dataset, dst_dir, strict):
 
         for row in reader:
             os.system(("ffmpeg -ss " + row[1] + " -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
-                       row[0] + ") -t 10 --  \"" + dst_dir + "/" + row[0] + "_" + row[1] + ".wav\""))
+                       row[0] + ") -t 10 -- -ar " + sample_rate + " \"" + dst_dir + "/" + row[0] + "_" + row[1] + ".wav\""))
 
 """
     Function for creating csv file containing info for given class
