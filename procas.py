@@ -40,8 +40,8 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--strict', help='If used, only match exact string argument passed')
     parser.add_argument('--label_file', type=str, help='Path to CSV file containing AudioSet labels for each class')
     parser.add_argument('--csv_dataset', type=str, help='Path to CSV file containing AudioSet in YouTube-id/timestamp form')
-    parser.add_argument('--destination_dir', type=str, help='directory path to put found files into')
-    parser.add_argument('-d', '--audio_data_dir', type=str, help='directory path containing files from AudioSet')
+    parser.add_argument('-d', '--destination_dir', type=str, help='directory path to put downloaded (or found) files into')
+    parser.add_argument('--audio_data_dir', type=str, help='directory path containing pre-downloaded files from AudioSet')
 
     parser.set_defaults(
         label_file='./data/class_labels_indices.csv',
