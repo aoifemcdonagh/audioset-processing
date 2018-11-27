@@ -35,8 +35,8 @@ def download(label, csv_dataset, dst_dir, strict, sample_rate):
         reader = csv.reader(dataset)
 
         for row in reader:
-            os.system(("ffmpeg -ss " + row[1] + " -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
-                       row[0] + ") -t 10 -- -ar " + sample_rate + " \"" + dst_dir + "/" + row[0] + "_" + row[1] + ".wav\""))
+            os.system(("ffmpeg -ss " + str(row[1]) + " -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
+                       str(row[0]) + ") -t 10 -ar " + str(sample_rate) + " -- " + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav"))
 
 """
     Function for creating csv file containing info for given class
@@ -87,7 +87,7 @@ def create_csv(class_name, csv_dataset, strict, dst_dir='./data/'):
 
 def get_label_id(label, strict):
 
-    with open('class_labels_indices.csv') as label_file:
+    with open('./data/class_labels_indices.csv') as label_file:
         reader = csv.DictReader(label_file)
         index, id, class_name, = reader.fieldnames
 
