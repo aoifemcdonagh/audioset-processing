@@ -1,5 +1,10 @@
 # Set of scripts for downloading raw audio files from AudioSet.
 
+## Prerequisites
+- python3
+- ffmpeg
+- youtube-dl
+
 ## Quick start
 
 To download raw audio for class "bird" 
