@@ -36,7 +36,7 @@ def download(label, csv_dataset, dst_dir, strict, sample_rate):
 
         for row in reader:
             os.system(("ffmpeg -ss " + str(row[1]) + " -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
-                       str(row[0]) + ") -t 10 -ar " + str(sample_rate) + " -- " + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav"))
+                       str(row[0]) + ") -t 10 -ar " + str(sample_rate) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\""))
 
 """
     Function for creating csv file containing info for given class
