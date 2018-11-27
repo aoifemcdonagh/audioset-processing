@@ -28,7 +28,7 @@ def download(args):
     print("Downloading classes from AudioSet.")
 
     for class_name in args.classes:
-        utils.download(class_name, args.csv_dataset, args.destination_dir, args.strict, args.fs)
+        utils.download(class_name, args)
 
 
 if __name__ == '__main__':
@@ -36,7 +36,9 @@ if __name__ == '__main__':
     parser.add_argument('mode', type=str, choices=['find', 'download'])
     parser.add_argument('-c', '--classes', nargs='+', type=str,
                         help='list of classes to find in a given directory of audioset files')
-    parser.add_argument('-fs', type=int, help="Sample rate of audio to download. Default 16kHz")
+    parser.add_argument('-b', '--blacklist', nargs='+', type=str,
+                        help='list of classes which will exclude a clip from being downloaded')
+    parser.add_argument('-fs', "--sample_rate", type=int, help="Sample rate of audio to download. Default 16kHz")
     parser.add_argument('-s', '--strict', help='If used, only match exact string argument passed')
     parser.add_argument('--label_file', type=str, help='Path to CSV file containing AudioSet labels for each class')
     parser.add_argument('--csv_dataset', type=str, help='Path to CSV file containing AudioSet in YouTube-id/timestamp form')

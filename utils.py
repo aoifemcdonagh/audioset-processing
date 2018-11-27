@@ -24,9 +24,9 @@ def find(labels, csv_dataset, raw_audio_dir, destination_dir):
         sort_files(youtube_id, raw_audio_dir, destination_dir)
 
 
-def download(label, csv_dataset, dst_dir, strict, sample_rate):
-    new_csv = create_csv(label, csv_dataset, strict)
-    dst_dir = os.path.join(dst_dir, label)
+def download(label, args):
+    new_csv = create_csv(label, args)
+    dst_dir = os.path.join(args.destination_dir, label)
 
     if not os.path.isdir(dst_dir):
         os.makedirs(dst_dir)
@@ -36,14 +36,14 @@ def download(label, csv_dataset, dst_dir, strict, sample_rate):
 
         for row in reader:
             os.system(("ffmpeg -ss " + str(row[1]) + " -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
-                       str(row[0]) + ") -t 10 -ar " + str(sample_rate) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\""))
+                       str(row[0]) + ") -t 10 -ar " + str(args.fs) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\""))
 
 """
     Function for creating csv file containing info for given class
 """
 
 
-def create_csv(class_name, csv_dataset, strict, dst_dir='./data/'):
+def create_csv(class_name, args, dst_dir='./data/'):
     new_csv_path = os.path.join(dst_dir + class_name + '.csv')
     print(new_csv_path)
 
@@ -52,13 +52,14 @@ def create_csv(class_name, csv_dataset, strict, dst_dir='./data/'):
         print("A CSV file for class " + class_name + ' already exists.')
         print("*** Overwriting " + dst_dir + class_name + '.csv ***')
 
-    label_id = get_label_id(class_name,strict)
+    label_id = get_label_id(class_name, args.strict)
 
-    with open(csv_dataset) as dataset, open(new_csv_path, 'w', newline='') as new_csv:
+    with open(args.csv_dataset) as dataset, open(new_csv_path, 'w', newline='') as new_csv:
         reader = csv.reader(dataset, skipinitialspace=True)
         writer = csv.writer(new_csv)
 
-        to_write = [row for row in reader for label in label_id if label in row[3]]
+        #  Include the row if it contains label for desired class and no labels of blacklisted classes
+        to_write = [row for row in reader for label in label_id if label in row[3] and bool(set(row[3]).intersection(args.blacklist)) is False]  # added check for blacklisted classes
         writer.writerows(to_write)
 
     print("Finished writing CSV file for " + class_name)
