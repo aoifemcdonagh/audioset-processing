@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     parser.set_defaults(
         label_file='./data/class_labels_indices.csv',
-        csv_dataset='./data/balanced_train_segments.csv',
+        csv_dataset='./data/unbalanced_train_segments.csv',
         destination_dir='./output',
         fs=16000
     )
