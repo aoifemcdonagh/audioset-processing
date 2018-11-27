@@ -9,7 +9,7 @@
 
 To download raw audio for class "bird" 
 ```	
-python procas.py download -c "bird"
+python333 procas.py download -c "bird"
 ```
 Downloads raw audio to a folder `./output` in current directory.
 
