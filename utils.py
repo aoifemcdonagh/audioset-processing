@@ -39,7 +39,7 @@ def download(label, args):
                        str(row[0]) + ") -t 10 -ar " + str(args.fs) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\""))
 
 """
-    Function for creating csv file containing info for given class
+    Function for creating csv file containing all clips and corresponding info for given class
 """
 
 
@@ -52,14 +52,15 @@ def create_csv(class_name, args, dst_dir='./data/'):
         print("A CSV file for class " + class_name + ' already exists.')
         print("*** Overwriting " + dst_dir + class_name + '.csv ***')
 
-    label_id = get_label_id(class_name, args.strict)
+    label_id = get_label_id(class_name, args.strict)  # Get a list of label IDs which match class_name
+    blacklisted_ids = [get_label_id(blacklisted_class) for blacklisted_class in args.blacklist ] # Get a list of label IDs for blacklisted classes
 
     with open(args.csv_dataset) as dataset, open(new_csv_path, 'w', newline='') as new_csv:
         reader = csv.reader(dataset, skipinitialspace=True)
         writer = csv.writer(new_csv)
 
         #  Include the row if it contains label for desired class and no labels of blacklisted classes
-        to_write = [row for row in reader for label in label_id if label in row[3] and bool(set(row[3]).intersection(args.blacklist)) is False]  # added check for blacklisted classes
+        to_write = [row for row in reader for label in label_id if label in row[3] and bool(set(row[3]).intersection(blacklisted_ids)) is False]  # added check for blacklisted classes
         writer.writerows(to_write)
 
     print("Finished writing CSV file for " + class_name)
@@ -68,9 +69,9 @@ def create_csv(class_name, args, dst_dir='./data/'):
 
 
 """
-    Function for getting corresponding label for a class
+    Function for getting corresponding label for a class name
     Input:
-        labels - label value to search for
+        label - label value to search for
 
     Returns:
         label_id - ID for given label. Given as a list as there can be multiple matching IDs found (e.g. "dog")
@@ -105,7 +106,7 @@ def get_label_id(label, strict):
             print("Multiple labels found for " + label)
             print(label_id)
 
-    return label_id
+    return label_id  # Return a list of matching label IDs
 
 
 """
