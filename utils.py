@@ -43,14 +43,14 @@ def download(label, args):
 """
 
 
-def create_csv(class_name, args, dst_dir='./data/'):
-    new_csv_path = os.path.join(dst_dir + class_name + '.csv')
+def create_csv(class_name, args):
+    new_csv_path = os.path.join(args.destination_dir + class_name + '.csv')
     print(new_csv_path)
 
     # Should check if CSV already exists and possibly return if so? Overwriting for now
     if os.path.isfile(new_csv_path):
         print("A CSV file for class " + class_name + ' already exists.')
-        print("*** Overwriting " + dst_dir + class_name + '.csv ***')
+        print("*** Overwriting " + args.destination_dir + class_name + '.csv ***')
 
     label_id = get_label_id(class_name, args.strict)  # Get a list of label IDs which match class_name
     blacklisted_ids = [get_label_id(blacklisted_class, args.strict) for blacklisted_class in args.blacklist ] # Get a list of label IDs for blacklisted classes
