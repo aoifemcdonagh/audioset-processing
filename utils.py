@@ -53,7 +53,7 @@ def create_csv(class_name, args, dst_dir='./data/'):
         print("*** Overwriting " + dst_dir + class_name + '.csv ***')
 
     label_id = get_label_id(class_name, args.strict)  # Get a list of label IDs which match class_name
-    blacklisted_ids = [get_label_id(blacklisted_class) for blacklisted_class in args.blacklist ] # Get a list of label IDs for blacklisted classes
+    blacklisted_ids = [get_label_id(blacklisted_class, args.strict) for blacklisted_class in args.blacklist ] # Get a list of label IDs for blacklisted classes
 
     with open(args.csv_dataset) as dataset, open(new_csv_path, 'w', newline='') as new_csv:
         reader = csv.reader(dataset, skipinitialspace=True)
@@ -87,26 +87,29 @@ def create_csv(class_name, args, dst_dir='./data/'):
 """
 
 
-def get_label_id(label, strict):
+def get_label_id(class_name, strict):
 
     with open('./data/class_labels_indices.csv') as label_file:
         reader = csv.DictReader(label_file)
-        index, id, class_name, = reader.fieldnames
+        index, id, display_name, = reader.fieldnames
 
         if strict:
-            label_id = [row[id] for row in reader if (label.lower() == row[class_name].lower())]
+            label_ids = [row[id] for row in reader if (class_name.lower() == row[display_name].lower())]
 
         else:
-            label_id = [row[id] for row in reader if (label.lower() in row[class_name].lower())]
+            label_ids = [row[id] for row in reader if (class_name.lower() in row[display_name].lower())]
 
-        if label_id is None:
-            print("No id for class " + label)
+        if label_ids is None:
+            print("No id for class " + class_name)
 
-        if len(label_id) > 1: # If there is more than one class containing the specified string
-            print("Multiple labels found for " + label)
-            print(label_id)
+        elif len(label_ids) > 1: # If there is more than one class containing the specified string
+            print("Multiple labels found for " + class_name)
+            print(label_ids)
 
-    return label_id  # Return a list of matching label IDs
+        else:
+            print("Label ID for \"" + class_name + "\": " + label_ids)
+
+    return label_ids  # Return a list of matching label IDs
 
 
 """
