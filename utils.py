@@ -5,28 +5,25 @@
 #       - CSV file of dataset
 #       - directory where raw audio is stored
 #       - destination directory to store sorted audio files
-#
-# The term 'label' is used in place of 'class' to avoid conflicts with Python keywords
 
 import csv
-from collections import defaultdict
-import fnmatch
 import os
 from shutil import copyfile
 
 
-def find(labels, csv_dataset, raw_audio_dir, destination_dir):
-    print("Finding examples for classes " + str(labels) + " in: " + raw_audio_dir)
+def find(class_name, args):
+    print("Finding examples for class " + class_name + " in: " + args.audio_data_dir)
 
-    for label in labels:
-        class_id = get_label_id(label)
-        youtube_id = get_yt_ids(class_id, csv_dataset)
-        sort_files(youtube_id, raw_audio_dir, destination_dir)
+    dst_dir = os.path.join(args.destination_dir, class_name)  # Create directory to store found files
+
+    class_id = get_label_id(class_name)  # Get ID corresponding to class_name
+    youtube_ids = get_yt_ids(class_id, args.csv_dataset)  # Find all YouTube IDs which have class_id as a label
+    find_files(youtube_ids, args.audio_data_dir, dst_dir)  # Find all files in audio_data_dir which are in the list of YouTube IDs
 
 
-def download(label, args):
-    new_csv = create_csv(label, args)
-    dst_dir = os.path.join(args.destination_dir, label)
+def download(class_name, args):
+    new_csv = create_csv(class_name, args)
+    dst_dir = os.path.join(args.destination_dir, class_name)
 
     if not os.path.isdir(dst_dir):
         os.makedirs(dst_dir)
@@ -117,11 +114,13 @@ def get_label_id(class_name, strict):
     Input:
         - label_ids: list of label IDs (will most often only contain 1 label)
         - csv_dataset: path to csv file containing dataset info (i.e. youtube ids and labels)
+    Return:
+        - dictionary containing label-YouTubeID pairs
 """
 
 
 def get_yt_ids(label_ids, csv_dataset):
-    yt_ids = {label: [] for label in label_ids}
+    yt_ids = {label: [] for label in label_ids}  # Empty dictionary with class labels as keys and empty lists as values
 
     with open(csv_dataset) as dataset:
         reader = csv.reader(dataset, skipinitialspace=True)
@@ -152,25 +151,27 @@ def get_yt_ids(label_ids, csv_dataset):
 """
 
 
-def sort_files(yt_ids, file_dir, dst_dir=None):
+def find_files(yt_ids, file_dir, dst_dir=None):
     dst_dir = file_dir if dst_dir is None else dst_dir
 
-    for label in yt_ids:  # keys in yt_ids are class names
-        if not os.path.exists(dst_dir + "/" + label):
-            os.makedirs(dst_dir + "/" + label)
-            print("Created directory for class: " + label)
-            print(dst_dir + "/" + label)
+    for class_name in yt_ids:  # keys in yt_ids are class names
+        if not os.path.exists(dst_dir + "/" + class_name):
+            os.makedirs(dst_dir + "/" + class_name)
+            print("Created directory for class: " + class_name)
+            print(dst_dir + "/" + class_name)
 
     for file in os.listdir(file_dir):  # Iterate through all files in dir
-        for label, yt_id_list in yt_ids.items():  # Iterate through label-yt_id_list pairs
+        for class_name, yt_id_list in yt_ids.items():  # Iterate through label-yt_id_list pairs
             if any(yt_id in file for yt_id in yt_id_list):  # if the file name in list of yt_ids
                 src = file_dir + "/" + file  # source file
-                dst = (dst_dir + "/" + label + "/" + file)  # destination of file
+                dst = (dst_dir + "/" + class_name + "/" + file)  # destination of file
                 copyfile(src, dst)  # copy file into directory for current label
 
     print("Finished sorting files")
 
-
+"""
+    Don't call this file directly from terminal....
+"""
 if __name__ == '__main__':
     import argparse
 
@@ -199,4 +200,4 @@ if __name__ == '__main__':
 
     # print(youtube_ids)
 
-    sort_files(youtube_ids, args.raw_audio_dir, args.destination_dir)
+    find_files(youtube_ids, args.raw_audio_dir, args.destination_dir)
