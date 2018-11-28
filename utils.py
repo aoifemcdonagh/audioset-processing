@@ -37,11 +37,12 @@ def download(class_name, args):
 
 """
     Function for creating csv file containing all clips and corresponding info for given class
+    Blacklisted classes functionality implemented here
 """
 
 
 def create_csv(class_name, args):
-    new_csv_path = os.path.join(args.destination_dir + class_name + '.csv')
+    new_csv_path = os.path.join(args.destination_dir + "/" + class_name + '.csv')
     print(new_csv_path)
 
     # Should check if CSV already exists and possibly return if so? Overwriting for now
@@ -51,13 +52,15 @@ def create_csv(class_name, args):
 
     label_id = get_label_id(class_name, args.strict)  # Get a list of label IDs which match class_name
     blacklisted_ids = [get_label_id(blacklisted_class, args.strict) for blacklisted_class in args.blacklist ] # Get a list of label IDs for blacklisted classes
+    blacklisted_ids = [id for blacklist in blacklisted_ids for id in blacklist]  # Flatten list of lists into a single list
 
     with open(args.csv_dataset) as dataset, open(new_csv_path, 'w', newline='') as new_csv:
         reader = csv.reader(dataset, skipinitialspace=True)
         writer = csv.writer(new_csv)
 
         #  Include the row if it contains label for desired class and no labels of blacklisted classes
-        to_write = [row for row in reader for label in label_id if label in row[3] and bool(set(row[3]).intersection(blacklisted_ids)) is False]  # added check for blacklisted classes
+        to_write = [row for row in reader for label in label_id if label in row[3]
+                    and bool(set(row[3].split(",")).intersection(blacklisted_ids)) is False]  # added check for blacklisted classes
         writer.writerows(to_write)
 
     print("Finished writing CSV file for " + class_name)
@@ -104,7 +107,7 @@ def get_label_id(class_name, strict):
             print(label_ids)
 
         else:
-            print("Label ID for \"" + class_name + "\": " + label_ids)
+            print("Label ID for \"" + class_name + "\": " + str(label_ids))
 
     return label_ids  # Return a list of matching label IDs
 
