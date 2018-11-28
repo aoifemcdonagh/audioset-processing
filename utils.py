@@ -51,8 +51,12 @@ def create_csv(class_name, args):
         print("*** Overwriting " + args.destination_dir + class_name + '.csv ***')
 
     label_id = get_label_id(class_name, args.strict)  # Get a list of label IDs which match class_name
-    blacklisted_ids = [get_label_id(blacklisted_class, args.strict) for blacklisted_class in args.blacklist ] # Get a list of label IDs for blacklisted classes
-    blacklisted_ids = [id for blacklist in blacklisted_ids for id in blacklist]  # Flatten list of lists into a single list
+
+    if args.blacklist != None:
+        blacklisted_ids = [get_label_id(blacklisted_class, args.strict) for blacklisted_class in args.blacklist ] # Get a list of label IDs for blacklisted classes
+        blacklisted_ids = [id for blacklist in blacklisted_ids for id in blacklist]  # Flatten list of lists into a single list
+    else:
+        blacklisted_ids = []
 
     with open(args.csv_dataset) as dataset, open(new_csv_path, 'w', newline='') as new_csv:
         reader = csv.reader(dataset, skipinitialspace=True)
