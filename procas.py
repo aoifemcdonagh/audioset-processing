@@ -15,8 +15,11 @@ import utils
 
 
 def find(args):
-    utils.find(args.classes, args.csv_dataset, args.data_dir, args.destination_dir)
-    print("Finished finding and sorting files for classes: " + args.classes)
+    print("Finding all files labeled with classes" + args.classes + " in " + args.audio_data_dir)
+
+    for class_name in args.classes:
+        utils.find(class_name, args)
+        print("Finished finding and sorting files for class: " + class_name)
 
 
 """
@@ -38,12 +41,18 @@ if __name__ == '__main__':
                         help='list of classes to find in a given directory of audioset files')
     parser.add_argument('-b', '--blacklist', nargs='+', type=str,
                         help='list of classes which will exclude a clip from being downloaded')
-    parser.add_argument('-fs', "--sample_rate", type=int, help="Sample rate of audio to download. Default 16kHz")
-    parser.add_argument('-s', '--strict', help='If used, only match exact string argument passed')
-    parser.add_argument('--label_file', type=str, help='Path to CSV file containing AudioSet labels for each class')
-    parser.add_argument('--csv_dataset', type=str, help='Path to CSV file containing AudioSet in YouTube-id/timestamp form')
-    parser.add_argument('-d', '--destination_dir', type=str, help='directory path to put downloaded (or found) files into')
-    parser.add_argument('--audio_data_dir', type=str, help='directory path containing pre-downloaded files from AudioSet')
+    parser.add_argument('-d', '--destination_dir', type=str,
+                        help='directory path to put downloaded (or found) files into')
+    parser.add_argument('--audio_data_dir', type=str,
+                        help='directory path containing pre-downloaded files from AudioSet')
+    parser.add_argument('-fs', "--sample_rate", type=int,
+                        help="Sample rate of audio to download. Default 16kHz")
+    parser.add_argument('-s', '--strict',
+                        help='If used, only match exact string argument passed')
+    parser.add_argument('--label_file', type=str,
+                        help='Path to CSV file containing AudioSet labels for each class')
+    parser.add_argument('--csv_dataset', type=str,
+                        help='Path to CSV file containing AudioSet in YouTube-id/timestamp form')
 
     parser.set_defaults(
         label_file='./data/class_labels_indices.csv',
