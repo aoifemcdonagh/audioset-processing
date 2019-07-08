@@ -5,8 +5,7 @@
 
 import argparse
 import os
-
-from procas import utils
+import procas.utils as utils
 
 
 def find(args):
@@ -55,9 +54,9 @@ if __name__ == '__main__':
                         help='Path to CSV file containing AudioSet in YouTube-id/timestamp form')
 
     parser.set_defaults(
-        label_file='./data/class_labels_indices.csv',
-        csv_dataset='./data/unbalanced_train_segments.csv',
-        destination_dir='./output',
+        label_file='../data/class_labels_indices.csv',
+        csv_dataset='../data/unbalanced_train_segments.csv',
+        destination_dir='../output',
         fs=16000
     )
 
@@ -69,6 +68,8 @@ if __name__ == '__main__':
         find(args)
 
     elif args.mode == 'download':
+        if not os.path.isdir(args.destination_dir):
+            os.makedirs(args.destination_dir)
         download(args)
 
 

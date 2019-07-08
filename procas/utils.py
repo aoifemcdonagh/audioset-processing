@@ -24,16 +24,18 @@ def find(class_name, args):
 def download(class_name, args):
     new_csv = create_csv(class_name, args)
     dst_dir = os.path.join(args.destination_dir, class_name)
+    print("dst_dir: " + dst_dir)
 
     if not os.path.isdir(dst_dir):
         os.makedirs(dst_dir)
+        print("dst_dir: " + dst_dir)
 
     with open(new_csv) as dataset:
         reader = csv.reader(dataset)
 
         for row in reader:
-            os.system(("ffmpeg -ss " + str(row[1]) + " -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
-                       str(row[0]) + ") -t 10 -ar " + str(args.fs) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\""))
+            os.system(("ffmpeg -ss " + str(row[1]) + " -t 10 -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
+                       str(row[0]) + ") -ar " + str(args.fs) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\""))
 
 
 def create_csv(class_name, args):
@@ -50,7 +52,7 @@ def create_csv(class_name, args):
     # Should check if CSV already exists and possibly return if so? Overwriting for now
     if os.path.isfile(new_csv_path):
         print("A CSV file for class " + class_name + ' already exists.')
-        print("*** Overwriting " + args.destination_dir + class_name + '.csv ***')
+        print("*** Overwriting " + args.destination_dir + "/" + class_name + '.csv ***')
 
     label_id = get_label_id(class_name, args.strict)  # Get a list of label IDs which match class_name
 
@@ -74,11 +76,6 @@ def create_csv(class_name, args):
     return new_csv_path
 
 
-"""
-
-"""
-
-
 def get_label_id(class_name, strict):
     """
     Function for getting corresponding label for a class name
@@ -96,7 +93,7 @@ def get_label_id(class_name, strict):
     :return: ID for given label. Given as a list as there can be multiple matching IDs found (e.g. "dog")
     """
 
-    with open('./data/class_labels_indices.csv') as label_file:
+    with open('../data/class_labels_indices.csv') as label_file:
         reader = csv.DictReader(label_file)
         index, id, display_name, = reader.fieldnames
 
