@@ -5,16 +5,15 @@
 
 import argparse
 import os
-
 import utils
 
 
-"""
-    Function for finding all examples in a directory containing labels for given classes
-"""
-
-
 def find(args):
+    """
+    Function for finding all examples in a directory containing labels for given classes
+    :param args:
+    :return:
+    """
     print("Finding all files labeled with classes" + args.classes + " in " + args.audio_data_dir)
 
     for class_name in args.classes:
@@ -22,12 +21,12 @@ def find(args):
         print("Finished finding and sorting files for class: " + class_name)
 
 
-"""
-    Function for downloading all examples in AudioSet containing labels for given classes
-"""
-
-
 def download(args):
+    """
+    Function for downloading all examples in AudioSet containing labels for given classes
+    :param args:
+    :return:
+    """
     print("Downloading classes from AudioSet.")
 
     for class_name in args.classes:

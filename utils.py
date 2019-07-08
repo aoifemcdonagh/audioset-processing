@@ -35,13 +35,15 @@ def download(class_name, args):
             os.system(("ffmpeg -ss " + str(row[1]) + " -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
                        str(row[0]) + ") -t 10 -ar " + str(args.fs) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\""))
 
-"""
-    Function for creating csv file containing all clips and corresponding info for given class
-    Blacklisted classes functionality implemented here
-"""
-
 
 def create_csv(class_name, args):
+    """
+    Function for creating csv file containing all clips and corresponding info for given class
+    Blacklisted classes functionality implemented here
+    :param class_name:
+    :param args:
+    :return:
+    """
     new_csv_path = os.path.join(args.destination_dir + "/" + class_name + '.csv')
     print(new_csv_path)
 
@@ -73,12 +75,13 @@ def create_csv(class_name, args):
 
 
 """
-    Function for getting corresponding label for a class name
-    Input:
-        label - label value to search for
 
-    Returns:
-        label_id - ID for given label. Given as a list as there can be multiple matching IDs found (e.g. "dog")
+"""
+
+
+def get_label_id(class_name, strict):
+    """
+    Function for getting corresponding label for a class name
 
     The function looks for class name in the CSV file of label indices. It performs sub-string searching rather than
     matching so that class labels are more reliably found. Problematic naming convention of classes in AudioSet
@@ -88,10 +91,10 @@ def create_csv(class_name, args):
     Sub-string matching will result in multiple class labels being found for certain input stings. e.g. "dog"
 
     28/06/18: implemented 'strict' option
-"""
-
-
-def get_label_id(class_name, strict):
+    :param class_name: label to search for
+    :param strict:
+    :return: ID for given label. Given as a list as there can be multiple matching IDs found (e.g. "dog")
+    """
 
     with open('./data/class_labels_indices.csv') as label_file:
         reader = csv.DictReader(label_file)
@@ -116,17 +119,14 @@ def get_label_id(class_name, strict):
     return label_ids  # Return a list of matching label IDs
 
 
-"""
-    Function for getting the youtube IDs for all clips where the specified classes are present
-    Input:
-        - label_ids: list of label IDs (will most often only contain 1 label)
-        - csv_dataset: path to csv file containing dataset info (i.e. youtube ids and labels)
-    Return:
-        - dictionary containing label-YouTubeID pairs
-"""
-
-
 def get_yt_ids(label_ids, csv_dataset):
+    """
+    Function for getting the youtube IDs for all clips where the specified classes are present
+
+    :param label_ids: list of label IDs (will most often only contain 1 label)
+    :param csv_dataset: path to csv file containing dataset info (i.e. youtube ids and labels)
+    :return: dictionary containing label-YouTubeID pairs
+    """
     yt_ids = {label: [] for label in label_ids}  # Empty dictionary with class labels as keys and empty lists as values
 
     with open(csv_dataset) as dataset:
@@ -147,18 +147,18 @@ def get_yt_ids(label_ids, csv_dataset):
     return yt_ids  # return dict containing label-yt-id pairs
 
 
-"""
+def find_files(yt_ids, file_dir, dst_dir=None):
+    """
     Function for getting all wav files associated with given label/class
-    Input:
-        - yt_ids: dict containing label-yt_id pairs
-        - wav_file_dir: directory where all wav files are stored
 
     Name of function was originally 'sort_wav_files' but 'wav' was removed to avoid confusion. Script can be used to
     sort archive files, or any other type of file, no distinction is made.
-"""
 
-
-def find_files(yt_ids, file_dir, dst_dir=None):
+    :param yt_ids: dict containing label-yt_id pairs
+    :param file_dir: directory where files are stored
+    :param dst_dir:
+    :return:
+    """
     dst_dir = file_dir if dst_dir is None else dst_dir
 
     for class_name in yt_ids:  # keys in yt_ids are class names
