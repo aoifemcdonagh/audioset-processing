@@ -1,4 +1,4 @@
-# NOT USED
+# NOT USED here for reference
 
 #!/bin/bash
 

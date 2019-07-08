@@ -5,7 +5,8 @@
 
 import argparse
 import os
-import utils
+
+from procas import utils
 
 
 def find(args):
