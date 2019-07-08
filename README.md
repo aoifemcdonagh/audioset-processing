@@ -1,4 +1,18 @@
-# Toolkit for downloading raw audio files from AudioSet.
+# audioset-processing
+Toolkit for downloading raw audio files from AudioSet.
+
+## Quick start
+
+To download files from AudioSet for class "bird" 
+```	
+python3 procas.py download -c "bird"
+```
+Downloads audio files to a folder `output/bird` in current directory.
+
+Uses CSV files found in `data/` by default. Execute `procas.py` in its' own directory.
+
+## Overview
+
 This toolkit was developed as part of a project for my Master's thesis. This project involved training a WaveGAN model on subsets of the AudioSet dataset.  
 
 AudioSet is publicly available in two formats; as a list of YouTube-IDs structured as CSV files, or as 128-dimensional feature vectors stored as TFRecord files.
@@ -29,17 +43,7 @@ To download a sub-set of AudioSet, the user can specify target classes they wish
 ## Dependencies
 - python3
 - ffmpeg
-- youtube-dl
-
-## Quick start
-
-To download files from AudioSet for class "bird" 
-```	
-python3 procas.py download -c "bird"
-```
-Downloads audio files to a folder `output/bird` in current directory.
-
-Uses CSV files found in `data/` by default. Execute `procas.py` in its' own directory.
+- youtube-dl 2019.7.2
 
 ## More info
 AudioSet can be downloaded from Google [here](https://research.google.com/audioset/download.html) as a set of CSV files. For each element in the dataset the CSV files list an associated YouTube ID, start time, end time and class labels. The CSV files are used to download AudioSet as raw audio files (WAV).
