@@ -38,7 +38,10 @@ Gathering all samples for an entire class would take an extremely long time and 
 
 Since these steps are repeatable for downloading any target class in AudioSet, it made sense to automate this process. A toolkit for downloading the raw audio samples in AudioSet was developed to solve this problem. The toolkit comprises of a set of Python scripts for taking user input, parsing through the dataset, and downloading the relevant audio clips.  
 
+#### Downloading
 To download a sub-set of AudioSet, the user can specify target classes they wish to download. Then the csv files distributed for the dataset are parsed for all YouTube-IDs which have a label associated with the given class. Using a number of Python packages, URLs are formed with the YouTube-IDs. Ten second audio clips are downloaded using the generated URLs and corresponding timestamps for each video. Clips are stored locally on the user's machine for future use.  
+
+![alt text](https://github.com/aoifemcdonagh/audioset-processing/blob/master/src/pictures/audioset-processing-download.png "Download flowchart")
 
 ## Dependencies
 - python3
