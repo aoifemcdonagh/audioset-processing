@@ -9,7 +9,7 @@ python3 procas.py download -c "bird"
 ```
 Downloads audio files to a folder `output/bird` in current directory.
 
-Uses CSV files found in `data/` by default. Execute `procas.py` in its' own directory.
+Uses CSV files found in `data/` by default. Execute `process.py` in its' own directory.
 
 ## Overview
 
