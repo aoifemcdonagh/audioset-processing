@@ -1,4 +1,4 @@
-# audioset-processing
+# audioset-processing [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/googlecolab/colabtools/blob/master/notebooks/colab-github-demo.ipynb)
 Toolkit for downloading raw audio files from AudioSet.
 
 ## Dependencies
@@ -10,7 +10,7 @@ Toolkit for downloading raw audio files from AudioSet.
 
 To download files from AudioSet for class "bird" 
 ```	
-python3 procas.py download -c "bird"
+python3 process.py download -c "bird"
 ```
 Downloads audio files to a folder `output/bird` in current directory.
 
@@ -70,7 +70,6 @@ AudioSet can be downloaded from Google [here](https://research.google.com/audios
 ```
 audioset-processing
 ├── procas
-|   ├── process.py
 |   ├── utils.py
 |   └── download.sh
 ├── data
@@ -80,7 +79,9 @@ audioset-processing
 |   └── eval_segments.csv
 ├── src
 |   └── pictures
+├── demo.ipynb
 ├── LICENCE
+├── process.py
 ├── requirements.txt
 └── README.md
 ```
