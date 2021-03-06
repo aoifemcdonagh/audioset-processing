@@ -26,7 +26,7 @@ def find(class_name, args):
 
     csv_dataset = args.csv_dataset if args.csv_dataset is not None else DEFAULT_CSV_DATASET
 
-    class_id = get_label_id(class_name)  # Get ID corresponding to class_name
+    class_id = get_label_id(class_name, args)  # Get ID corresponding to class_name
     youtube_ids = get_yt_ids(class_id, csv_dataset)  # Find all YouTube IDs which have class_id as a label
     find_files(youtube_ids, args.audio_data_dir, dst_dir_path)  # Find all files in audio_data_dir which are in the list of YouTube IDs
 
@@ -74,10 +74,10 @@ def create_csv(class_name, args):
         print("A CSV file for class " + class_name + ' already exists.')
         print("*** Overwriting " + str(new_csv_path) + " ***")
 
-    label_id = get_label_id(class_name, args.strict)  # Get a list of label IDs which match class_name
+    label_id = get_label_id(class_name, args)  # Get a list of label IDs which match class_name
 
     if args.blacklist != None:
-        blacklisted_ids = [get_label_id(blacklisted_class, args.strict) for blacklisted_class in args.blacklist ] # Get a list of label IDs for blacklisted classes
+        blacklisted_ids = [get_label_id(blacklisted_class, args) for blacklisted_class in args.blacklist ] # Get a list of label IDs for blacklisted classes
         blacklisted_ids = [id for blacklist in blacklisted_ids for id in blacklist]  # Flatten list of lists into a single list
     else:
         blacklisted_ids = []
@@ -96,7 +96,7 @@ def create_csv(class_name, args):
     return new_csv_path
 
 
-def get_label_id(class_name, strict):
+def get_label_id(class_name, args):
     """
     Function for getting corresponding label for a class name
 
@@ -113,11 +113,13 @@ def get_label_id(class_name, strict):
     :return: ID for given label. Given as a list as there can be multiple matching IDs found (e.g. "dog")
     """
 
-    with open(DEFAULT_LABEL_FILE) as label_file:
+    label_file_path = args.label_file if args.label_file is not None else DEFAULT_LABEL_FILE
+
+    with open(label_file_path) as label_file:
         reader = csv.DictReader(label_file)
         index, id, display_name, = reader.fieldnames
 
-        if strict:
+        if args.strict:
             label_ids = [row[id] for row in reader if (class_name.lower() == row[display_name].lower())]
 
         else:
