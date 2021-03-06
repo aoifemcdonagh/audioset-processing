@@ -56,12 +56,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.mode == 'find':
-        if not os.path.isdir(args.destination_dir):
+        if args.destination_dir is not None and not os.path.isdir(args.destination_dir):
             os.makedirs(args.destination_dir)
         find(args)
 
     elif args.mode == 'download':
-        if not os.path.isdir(args.destination_dir):
+        if args.destination_dir is not None and not os.path.isdir(args.destination_dir):
             os.makedirs(args.destination_dir)
         download(args)
 
