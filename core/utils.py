@@ -10,20 +10,33 @@ import csv
 import os
 from shutil import copyfile
 
+# defaults
+DEFAULT_LABEL_FILE = '../data/class_labels_indices.csv',
+DEFAULT_CSV_DATASET = '../data/unbalanced_train_segments.csv',
+DEFAULT_DEST_DIR = '../output/',
+DEFAULT_FS = 16000
+
 
 def find(class_name, args):
     print("Finding examples for class " + class_name + " in: " + args.audio_data_dir)
 
-    dst_dir = os.path.join(args.destination_dir, class_name)  # Create directory to store found files
+    # construct path to destination dir
+    dst_dir = args.destination_dir if args.destination_dir is not None else DEFAULT_DEST_DIR
+    dst_dir_path = os.path.join(dst_dir, class_name)  # Create directory to store found files
+
+    csv_dataset = args.csv_dataset if args.csv_dataset is not None else DEFAULT_CSV_DATASET
 
     class_id = get_label_id(class_name)  # Get ID corresponding to class_name
-    youtube_ids = get_yt_ids(class_id, args.csv_dataset)  # Find all YouTube IDs which have class_id as a label
-    find_files(youtube_ids, args.audio_data_dir, dst_dir)  # Find all files in audio_data_dir which are in the list of YouTube IDs
+    youtube_ids = get_yt_ids(class_id, csv_dataset)  # Find all YouTube IDs which have class_id as a label
+    find_files(youtube_ids, args.audio_data_dir, dst_dir_path)  # Find all files in audio_data_dir which are in the list of YouTube IDs
 
 
 def download(class_name, args):
     new_csv = create_csv(class_name, args)
-    dst_dir = os.path.join(args.destination_dir, class_name)
+    # construct path to destination dir
+    dst_dir_root = args.destination_dir if args.destination_dir is not None else DEFAULT_DEST_DIR
+    dst_dir = os.path.join(dst_dir_root, class_name)  # Create directory to store found files
+
     print("dst_dir: " + dst_dir)
 
     if not os.path.isdir(dst_dir):
@@ -36,9 +49,9 @@ def download(class_name, args):
         for row in reader:
             # print command for debugging
             print("ffmpeg -ss " + str(row[1]) + " -t 10 -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
-                       str(row[0]) + ") -ar " + str(args.fs) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\"")
+                       str(row[0]) + ") -ar " + str(DEFAULT_FS) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\"")
             os.system(("ffmpeg -ss " + str(row[1]) + " -t 10 -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
-                       str(row[0]) + ") -ar " + str(args.fs) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\""))
+                       str(row[0]) + ") -ar " + str(DEFAULT_FS) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\""))
 
 
 def create_csv(class_name, args):
@@ -49,13 +62,17 @@ def create_csv(class_name, args):
     :param args:
     :return:
     """
-    new_csv_path = os.path.join(args.destination_dir + "/" + class_name + '.csv')
+    # construct path to destination dir
+    dst_dir = args.destination_dir if args.destination_dir is not None else DEFAULT_DEST_DIR
+    csv_dataset = args.csv_dataset if args.csv_dataset is not None else DEFAULT_CSV_DATASET
+
+    new_csv_path = os.path.join(str(dst_dir) + "/" + class_name + '.csv')
     print(new_csv_path)
 
     # Should check if CSV already exists and possibly return if so? Overwriting for now
     if os.path.isfile(new_csv_path):
         print("A CSV file for class " + class_name + ' already exists.')
-        print("*** Overwriting " + args.destination_dir + "/" + class_name + '.csv ***')
+        print("*** Overwriting " + str(new_csv_path) + " ***")
 
     label_id = get_label_id(class_name, args.strict)  # Get a list of label IDs which match class_name
 
@@ -65,7 +82,7 @@ def create_csv(class_name, args):
     else:
         blacklisted_ids = []
 
-    with open(args.csv_dataset) as dataset, open(new_csv_path, 'w', newline='') as new_csv:
+    with open(csv_dataset) as dataset, open(new_csv_path, 'w', newline='') as new_csv:
         reader = csv.reader(dataset, skipinitialspace=True)
         writer = csv.writer(new_csv)
 
@@ -96,7 +113,7 @@ def get_label_id(class_name, strict):
     :return: ID for given label. Given as a list as there can be multiple matching IDs found (e.g. "dog")
     """
 
-    with open('../data/class_labels_indices.csv') as label_file:
+    with open(DEFAULT_LABEL_FILE) as label_file:
         reader = csv.DictReader(label_file)
         index, id, display_name, = reader.fieldnames
 
@@ -119,17 +136,17 @@ def get_label_id(class_name, strict):
     return label_ids  # Return a list of matching label IDs
 
 
-def get_yt_ids(label_ids, csv_dataset):
+def get_yt_ids(label_ids, csv):
     """
     Function for getting the youtube IDs for all clips where the specified classes are present
 
     :param label_ids: list of label IDs (will most often only contain 1 label)
-    :param csv_dataset: path to csv file containing dataset info (i.e. youtube ids and labels)
+    :param csv: path to csv file containing dataset info (i.e. youtube ids and labels)
     :return: dictionary containing label-YouTubeID pairs
     """
     yt_ids = {label: [] for label in label_ids}  # Empty dictionary with class labels as keys and empty lists as values
 
-    with open(csv_dataset) as dataset:
+    with open(csv) as dataset:
         reader = csv.reader(dataset, skipinitialspace=True)
 
         # Add youtube id to list for label if corresponding audio contains that label/class
@@ -178,7 +195,7 @@ def find_files(yt_ids, file_dir, dst_dir=None):
 
 """
     Don't call this file directly from terminal....
-"""
+
 if __name__ == '__main__':
     import argparse
 
@@ -208,3 +225,4 @@ if __name__ == '__main__':
     # print(youtube_ids)
 
     find_files(youtube_ids, args.raw_audio_dir, args.destination_dir)
+"""
