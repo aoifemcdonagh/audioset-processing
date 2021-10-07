@@ -10,11 +10,12 @@ import csv
 import os
 from shutil import copyfile
 
+
 # defaults
 DEFAULT_LABEL_FILE = '../data/class_labels_indices.csv'
 DEFAULT_CSV_DATASET = '../data/unbalanced_train_segments.csv'
 DEFAULT_DEST_DIR = '../output/'
-DEFAULT_FS = 16000
+DEFAULT_FS = 44100
 
 
 def find(class_name, args):
