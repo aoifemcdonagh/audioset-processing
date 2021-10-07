@@ -6,9 +6,15 @@
 #       - directory where raw audio is stored
 #       - destination directory to store sorted audio files
 
+OS = os.name
+
+
 import csv
 import os
 from shutil import copyfile
+
+if(OS == 'nt'):
+    import subprocess
 
 
 # defaults
@@ -49,9 +55,16 @@ def download(class_name, args):
 
         for row in reader:
             # print command for debugging
-            print("ffmpeg -ss " + str(row[1]) + " -t 10 -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
+            print("ffmpeg -ss " + str(row[1]) + " -t 30 -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
                        str(row[0]) + ") -ar " + str(DEFAULT_FS) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\"")
-            os.system(("ffmpeg -ss " + str(row[1]) + " -t 10 -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
+            
+
+            if(OS == 'nt'):
+                command = ("ffmpeg -ss " + str(row[1]) + " -t 30 -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
+                       str(row[0]) + ") -ar " + str(DEFAULT_FS) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\"")          
+                subprocess.run(["powershell", "-Command", command], capture_output=True)
+            else:
+                os.system(("ffmpeg -ss " + str(row[1]) + " -t 30 -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
                        str(row[0]) + ") -ar " + str(DEFAULT_FS) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\""))
 
 
