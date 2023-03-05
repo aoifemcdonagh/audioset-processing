@@ -48,9 +48,9 @@ def download(class_name, args):
 
         for row in reader:
             # print command for debugging
-            print("ffmpeg -ss " + str(row[1]) + " -t 10 -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
+            print("ffmpeg -n -ss " + str(row[1]) + " -t 10 -i $(yt-dlp -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
                        str(row[0]) + ") -ar " + str(DEFAULT_FS) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\"")
-            os.system(("ffmpeg -ss " + str(row[1]) + " -t 10 -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
+            os.system(("ffmpeg -n -ss " + str(row[1]) + " -t 10 -i $(yt-dlp -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
                        str(row[0]) + ") -ar " + str(DEFAULT_FS) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\""))
 
 

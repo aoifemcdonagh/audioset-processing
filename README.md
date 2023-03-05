@@ -4,7 +4,7 @@ Toolkit for downloading raw audio files from AudioSet.
 ## Dependencies
 - python3
 - ffmpeg
-- youtube-dl 2019.7.2
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) [2023.03.04](https://github.com/yt-dlp/yt-dlp/releases/tag/2023.03.04)
 
 ## Quick start
 
