@@ -24,6 +24,7 @@ The following options control how the toolkit operates. The first list of option
 - `-c` or `--classes` List of classes to download (or find). Use quotation marks for class names with spaces, e.g. `"bird song"`. For multiple classes use format `"bird" "flute" "dog" ...` 
 - `-d` or `--destination_dir` Path to directory for storing downloaded (or found) files. Defaults to `./output`
 - `--audio_data_dir` Path to directory containing pre-downloaded AudioSet files. Must be used in `find` mode.
+- `--limit` The amount of files to download (checks if the download was successful).
 
 #### Less used
 - `-b` or `--blacklist` List of class labels which will exclude a file from being downloaded/found.

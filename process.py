@@ -52,12 +52,15 @@ if __name__ == '__main__':
                         help='Path to CSV file containing AudioSet labels for each class')
     parser.add_argument('--csv_dataset', type=str,
                         help='Path to CSV file containing AudioSet in YouTube-id/timestamp form')
+    parser.add_argument('--limit', type=int,
+                        help='Maximum number of successful downloaded clips')
 
     parser.set_defaults(
         label_file='./data/class_labels_indices.csv',
         csv_dataset='./data/unbalanced_train_segments.csv',
         destination_dir='./output',
-        fs=16000
+        fs=16000,
+        limit=500
     )
 
     args = parser.parse_args()
@@ -71,5 +74,3 @@ if __name__ == '__main__':
         if args.destination_dir is not None and not os.path.isdir(args.destination_dir):
             os.makedirs(args.destination_dir)
         download(args)
-
-
