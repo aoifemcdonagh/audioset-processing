@@ -39,19 +39,40 @@ def download(class_name, args):
 
     print("dst_dir: " + dst_dir)
 
+    limit = args.limit
+    downloaded_files = []
+
     if not os.path.isdir(dst_dir):
         os.makedirs(dst_dir)
         print("dst_dir: " + dst_dir)
+    else:
+        # Check which files were previously downloaded
+        downloaded_files = os.listdir(dst_dir)
+        downloaded_files = [d.rsplit('_', 1)[0] for d in downloaded_files]
+        limit -= len(downloaded_files)
+        print("Skipping {} already downloaded files...".format(len(downloaded_files)))
 
     with open(new_csv) as dataset:
         reader = csv.reader(dataset)
 
         for row in reader:
-            # print command for debugging
-            print("ffmpeg -ss " + str(row[1]) + " -t 10 -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
-                       str(row[0]) + ") -ar " + str(DEFAULT_FS) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\"")
-            os.system(("ffmpeg -ss " + str(row[1]) + " -t 10 -i $(youtube-dl -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
-                       str(row[0]) + ") -ar " + str(DEFAULT_FS) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\""))
+
+            if row[0] not in downloaded_files:
+
+                if limit <= 0:
+                    # Don't download more files if already downloaded the amount specified with --limit.
+                    print("Finished downloading {} files. If you want to download more, use --limit argument.".format(args.limit))
+                    break
+
+                # print command for debugging
+                print("ffmpeg -n -ss " + str(row[1]) + " -t 10 -i $(yt-dlp -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
+                        str(row[0]) + ") -ar " + str(args.fs) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\"")
+                exit_code = os.system(("ffmpeg -n -ss " + str(row[1]) + " -t 10 -i $(yt-dlp -f 'bestaudio' -g https://www.youtube.com/watch?v=" +
+                        str(row[0]) + ") -ar " + str(args.fs) + " -- \"" + dst_dir + "/" + str(row[0]) + "_" + row[1] + ".wav\""))
+                if exit_code == 0:
+                    limit -= 1
+                
+
 
 
 def create_csv(class_name, args):

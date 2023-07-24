@@ -17,8 +17,8 @@ fetch_clip() {
 
   if [ $? -eq 0 ]; then
     # i.e. if we haven't found this file
-    ffmpeg -loglevel quiet -ss "$2" -t 10 \
-        -i $(youtube-dl -f 'bestaudio' --get-url https://youtube.com/watch?v=$1) \
+    ffmpeg -n -loglevel quiet -ss "$2" -t 10 \
+        -i $(yt-dlp -f 'bestaudio' --get-url https://youtube.com/watch?v=$1) \
         -ar $SAMPLE_RATE \
         "./$outname.wav"
    else
